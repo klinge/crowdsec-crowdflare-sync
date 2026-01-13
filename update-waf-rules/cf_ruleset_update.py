@@ -106,7 +106,7 @@ def run_sync(dry_run) -> None:
                 zone_id=CF_ZONE_ID,
                 id=rule.id or "",
                 description=rule.description or "",
-                action=rule.action,
+                action=rule.action, # pyright: ignore[reportArgumentType]
                 expression=new_expression,
             ) # type: ignore
             logger.info(f"Cloudflare response: {response}")
