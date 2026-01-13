@@ -12,7 +12,7 @@ my local server to the edge servers on Cloudflare. So this project contains two 
 that cover my main needs. 
 
 1. **update_blocklist**: contains a script that pulls data from the Crowdsec community blocklist (CAPI) and updates
-a Cloudflare IP List
+a Cloudflare IP filter list
 2. **update-waf-rules** contains a script that lists locally banned IPs from the Crowdsec engine on your server 
 and updates a Cloudflare WAF ruleset 
 
@@ -20,8 +20,8 @@ and updates a Cloudflare WAF ruleset
 
 Each script has its own README with detailed setup and usage instructions:
 
-- [update_blocklist/](update_blocklist/) - Sync CAPI community blocklist to Cloudflare IP List
-- [update-waf-rules/](update-waf-rules/) - Sync local CrowdSec decisions to Cloudflare WAF rule
+- [update_blocklist](https://github.com/klinge/crowdsec-crowdflare-sync/tree/main/update-blocklist) - Sync CAPI community blocklist to Cloudflare IP List
+- [update-waf-rules](https://github.com/klinge/crowdsec-crowdflare-sync/tree/main/update-waf-rules) - Sync local CrowdSec decisions to Cloudflare WAF rule
 
 ## Requirements
 
