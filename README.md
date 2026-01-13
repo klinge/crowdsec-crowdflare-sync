@@ -31,6 +31,14 @@ Each script has its own README with detailed setup and usage instructions:
 - Python 3.7+
 - Root access (required for `cscli` command)
 
+## Cloudflare API token permissions
+The Cloudflare API token you use need these permissions: 
+
+- Account: 
+  - Account Rulesets:Edit, Account Filter Lists:Edit, Account Firewall Access Rules:Edit
+- For the relevant zone
+  - Zone:Read, Firewall Services:Edit
+
 ## Quick Start
 
 1. Create a virtual environment and activate it
