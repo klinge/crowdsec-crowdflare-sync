@@ -6,6 +6,9 @@ Automatically sync CrowdSec Community API (CAPI) blocked IPs to Cloudflare IP li
 
 This service fetches threat intelligence from CrowdSec's Community API and updates a Cloudflare IP list to block malicious traffic at the edge. It prioritizes high-severity threats (exploits > bruteforce > scans) and handles Cloudflare's 10,000 item limit by selecting the most critical IPs.
 
+**NOTE**: due to the Cloudflares limit on list length the script does not send the entire CAPI list to Cloudflare. You will not
+get the full protection that the list offers. 
+
 ## Features
 
 - **Intelligent prioritization** - Exploits get priority over scans

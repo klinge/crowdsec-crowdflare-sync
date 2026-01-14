@@ -23,6 +23,7 @@ CF_ZONE_ID = os.getenv("CLOUDFLARE_ZONE_ID", "")
 CF_RULESET_ID = os.getenv("CLOUDFLARE_RULESET_ID", "")
 CF_RULE_ID = os.getenv("CLOUDFLARE_RULE_ID", "")
 
+# Exit if necessary env vars are missing
 if not CF_ACCOUNT_ID or not CF_API_TOKEN or not CF_RULESET_ID or not CF_RULE_ID or not CF_ZONE_ID:
     logger.error("Missing required environment variables for Cloudflare configuration.")
     sys.exit(1)
@@ -51,7 +52,7 @@ def format_ip_for_cloudflare(ips) -> str:
     """Format IP address for Cloudflare WAF expression"""
     # Expected format: (ip.src in {91.92.243.241 195.178.110.68})
     ip_string = " ".join(ips)
-    
+
     return f"(ip.src in {{{ip_string}}})"
 
 
@@ -66,12 +67,12 @@ def fetch_current_rule():
     except Exception as e:
         logger.error(f"Error fetching ruleset: {e}")
         sys.exit(1)
-    
-    #Verify that rule is found - else exit
+
+    # Verify that rule is found - else exit
     if rule is None:
         logger.error(f"Rule with ID {CF_RULE_ID} not found in ruleset")
         sys.exit(1)
-    
+
     return rule
 
 
@@ -106,9 +107,9 @@ def run_sync(dry_run) -> None:
                 zone_id=CF_ZONE_ID,
                 id=rule.id or "",
                 description=rule.description or "",
-                action=rule.action, # pyright: ignore[reportArgumentType]
+                action=rule.action,  # pyright: ignore[reportArgumentType]
                 expression=new_expression,
-            ) # type: ignore
+            )  # type: ignore
             logger.info(f"Cloudflare response: {response}")
             logger.info(f"Finished updating Cloudflare ruleset with {len(ip_list)} IP-adresses.")
         except Exception as e:
@@ -117,7 +118,13 @@ def run_sync(dry_run) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Update Cloudflare ruleset with CrowdSec locally banned IP-adresses.")
-    parser.add_argument('--dry-run', action='store_true', help='Write out what would be sent to Cloudflare, but make no changes.')
+    parser = argparse.ArgumentParser(
+        description="Update Cloudflare ruleset with CrowdSec locally banned IP-adresses."
+    )
+    parser.add_argument(
+        '--dry-run',
+        action='store_true',
+        help='Write out what would be sent to Cloudflare, but make no changes.'
+    )
     args = parser.parse_args()
     run_sync(args.dry_run)

@@ -149,22 +149,35 @@ def run_sync(dry_run) -> None:
     prioritized_ips = prioritize_ips(ips)
 
     # Update Cloudflare list
-    try:
-        result = client.rules.lists.items.update(
-            account_id=CF_ACCOUNT_ID,
-            list_id=CF_LIST_ID,
-            body=prioritized_ips
-        )
+    if dry_run:
+        logger.info("--- DRYRUN: Not sent to Cloudflare ---")
         logger.info(
-            f"Successfully synced {len(prioritized_ips)} IPs. Operation ID: {result.operation_id}"
+            f"Would sync {len(prioritized_ips)} IPs to Cloudflare list {CF_LIST_NAME} ({CF_LIST_ID})"
         )
-    except Exception as e:
-        logger.error(f"Cloudflare API Error: {e}")
-        sys.exit(1)
+        logger.info("--- END DRYRUN ---")
+    else:
+        try:
+            result = client.rules.lists.items.update(
+                account_id=CF_ACCOUNT_ID,
+                list_id=CF_LIST_ID,
+                body=prioritized_ips
+            )
+            logger.info(
+                f"Successfully synced {len(prioritized_ips)} IPs. Operation ID: {result.operation_id}"
+            )
+        except Exception as e:
+            logger.error(f"Cloudflare API Error: {e}")
+            sys.exit(1)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Update Cloudflare list with Crowdsec community blocklist (CAPI).")
-    parser.add_argument('--dry-run', action='store_true', help='Write out what would be sent to Cloudflare, but make no changes.')
+    parser = argparse.ArgumentParser(
+        description="Update Cloudflare list with Crowdsec community blocklist (CAPI)."
+    )
+    parser.add_argument(
+        '--dry-run',
+        action='store_true',
+        help='Write out what would be sent to Cloudflare, but make no changes.'
+    )
     args = parser.parse_args()
     run_sync(args.dry_run)
