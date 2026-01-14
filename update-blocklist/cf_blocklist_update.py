@@ -22,14 +22,15 @@ CF_API_TOKEN = os.getenv("CLOUDFLARE_API_TOKEN", "")
 CF_LIST_ID = os.getenv("CLOUDFLARE_LIST_ID", "")
 CF_LIST_NAME = os.getenv("CLOUDFLARE_LIST_NAME", "")
 
+# Exit if required env vars are missing
+if not CF_ACCOUNT_ID or not CF_API_TOKEN or not CF_LIST_ID or not CF_LIST_NAME:
+    logger.error("Missing required environment variables for Cloudflare configuration.")
+    sys.exit(1)
+
 # Configure Cloudflare Client
 client = Cloudflare(
     api_token=CF_API_TOKEN,
 )
-
-if not CF_ACCOUNT_ID or not CF_API_TOKEN or not CF_LIST_ID or not CF_LIST_NAME:
-    logger.error("Missing required environment variables for Cloudflare configuration.")
-    sys.exit(1)
 
 
 def prioritize_ips(ips, limit=9900):
@@ -131,12 +132,16 @@ def run_sync(dry_run) -> None:
     logger.info("Starting Cloudflare sync")
 
     # Fetch existing list to verify name
-    list = client.rules.lists.get(
-        list_id=CF_LIST_ID,
-        account_id=CF_ACCOUNT_ID,
-    )
-    if list.name != CF_LIST_NAME:
-        logger.warning("Listname not matching expected name, aborting sync")
+    try:
+        list = client.rules.lists.get(
+            list_id=CF_LIST_ID,
+            account_id=CF_ACCOUNT_ID,
+        )
+        if list.name != CF_LIST_NAME:
+            logger.warning("Listname not matching expected name, aborting sync")
+            sys.exit(1)
+    except Exception as e:
+        logger.error(f"Cloudflare API Error: {e}")
         sys.exit(1)
 
     # Fetch IPs from CrowdSec
