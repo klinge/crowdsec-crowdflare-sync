@@ -111,7 +111,7 @@ def run_sync(dry_run) -> None:
                 expression=new_expression,
             )  # type: ignore
             logger.info(f"Cloudflare response: {response}")
-            logger.info(f"Finished updating Cloudflare ruleset with {len(ip_list)} IP-adresses.")
+            logger.info(f"Successfully updated Cloudflare ruleset with {len(ip_list)} IP-adresses.")
         except Exception as e:
             logger.error(f"Error updating Cloudflare ruleset: {e}")
             sys.exit(1)
