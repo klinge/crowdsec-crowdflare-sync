@@ -33,7 +33,7 @@ client = Cloudflare(
 )
 
 
-def prioritize_ips(ips, limit=9900):
+def prioritize_ips(ips) -> list:
     """Prioritize IPs by threat level for Cloudflare list limits.
 
     Sorts IPs by severity: exploits > bruteforce > scans, ensuring the most
@@ -41,15 +41,17 @@ def prioritize_ips(ips, limit=9900):
 
     Args:
         ips (list): List of IP dictionaries with 'ip' and 'comment' keys
-        limit (int): Maximum number of IPs to return (default: 9800)
 
     Returns:
         list: Prioritized list of IP dictionaries, truncated to limit
 
     Example:
         >>> ips = [{'ip': '1.2.3.4', 'comment': 'CrowdSec CAPI: http:exploit'}]
-        >>> prioritized = prioritize_ips(ips, 1000)
+        >>> prioritized = prioritize_ips(ips)
     """
+    # Set list limit from env. Default to 10 000 if not set.
+    limit = int(os.getenv("LIST_LIMIT", 10000))
+
     if len(ips) <= limit:
         return ips
 
@@ -58,23 +60,27 @@ def prioritize_ips(ips, limit=9900):
     bruteforce = [ip for ip in ips if 'http:bruteforce' in ip['comment']]
     scans = [ip for ip in ips if 'http:scan' in ip['comment']]
 
-    logger.debug(
+    logger.info(
         f"Found {len(exploits)} exploits, {len(bruteforce)} bruteforce, {len(scans)} scans"
     )
 
     # Build prioritized list
     prioritized = []
+
     prioritized.extend(exploits[:limit])  # Add all exploits first
+    logger.debug(f"Added {len(exploits)} IPs marked http:exploit")
 
     remaining = limit - len(prioritized)
     if remaining > 0:
         prioritized.extend(bruteforce[:remaining])  # Then bruteforce
+    logger.debug(f"Added {len(bruteforce)} IPs marked http:bruteforce")
 
     remaining = limit - len(prioritized)
     if remaining > 0:
         prioritized.extend(scans[:remaining])  # Finally scans
+    logger.debug(f"Added {remaining} IPs marked http:scan")
 
-    logger.info(f"Prioritized to {len(prioritized)} IPs (exploits first)")
+    logger.info(f"Prioritized list is truncated to {len(prioritized)} IPs (exploits first)")
     return prioritized
 
 
@@ -95,7 +101,6 @@ def get_crowdsec_ips():
         Requires root privileges to execute cscli command.
     """
     try:
-        logger.info("Fetching CrowdSec CAPI decisions")
         output = subprocess.check_output(["cscli", "decisions", "list", "-a", "--origin", "CAPI", "-o", "json"])
         decisions = json.loads(output)
 
@@ -107,7 +112,7 @@ def get_crowdsec_ips():
                     "comment": f"CrowdSec CAPI: {d.get('scenario')}"
                 })
 
-        logger.info(f"Found {len(ips_to_sync)} CAPI IPs")
+        logger.info(f"Fetched {len(ips_to_sync)} CAPI blocklist IPs")
         return ips_to_sync
     except Exception as e:
         logger.error(f"Error fetching CrowdSec data: {e}")
