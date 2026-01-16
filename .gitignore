@@ -11,3 +11,5 @@ __pycache__/
 .idea/
 # Logs
 *.log
+# Personal deployment automation
+Makefile
