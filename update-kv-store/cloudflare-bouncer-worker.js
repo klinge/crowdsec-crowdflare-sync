@@ -38,7 +38,8 @@ export default {
 
       // 2. High-speed lookup
       if (cachedSet && cachedSet.has(visitorIP)) {
-        console.log(`Blocked IP: ${visitorIP}`)
+        const hostname = request.headers.get("host") || new URL(request.url).hostname;
+        console.log(`Blocked IP: ${visitorIP} trying to reach: ${hostname}`);
         return new Response("Forbidden: IP blacklisted by CrowdSec", { status: 403 });
       }
 
