@@ -25,6 +25,8 @@ Each script has its own README with detailed setup and usage instructions:
 - [update_blocklist](/update-blocklist) - Sync CAPI community blocklist to Cloudflare IP List
 - [update-waf-rules](/update-waf-rules) - Sync local CrowdSec decisions to Cloudflare WAF rule
 
+There's also an **update-kv-store** folder that holds a script for updating a Cloudflare KV value store with the entire community blocklist and then a Worker script in javascript that uses that. This is as of yet experimental and with no support for setting it up on the CF side. 
+
 To respect Cloudflare API rate limits they're made to be scheduled at fixed intervals - not 
 run in real-time. 
 
